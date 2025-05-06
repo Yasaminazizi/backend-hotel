@@ -1,46 +1,37 @@
-import { EntityRepository, Repository } from 'typeorm';
-import { Reservation } from '../entity/reservation.entity'; 
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Reservation } from '../../model/entity/reservation.entity';
 import { CreateReservationDto } from '../../dto/create-reservation.dto';
 
-@EntityRepository(Reservation)
-export class ReservationRepository extends Repository<Reservation> {
+@Injectable()
+export class ReservationRepository {
+  constructor(
+    @InjectRepository(Reservation)
+    private readonly reservationRepository: Repository<Reservation>,
+  ) {}
 
-  
-  async createReservation(reservationData: CreateReservationDto): Promise<Reservation> {
-    const reservation = this.create(reservationData);  
-    return await this.save(reservation);  
+  async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+    const reservation = this.reservationRepository.create(createReservationDto);
+    return await this.reservationRepository.save(reservation);
   }
 
-  
-  async getReservationById(id: string): Promise<Reservation> {
-    try {
-      return await this.findOneOrFail({ where: { id } });  
-    } catch (error) {
-      throw new Error('Reservation not found');
-    }
+  async getReservationById(id: string): Promise<Reservation | null> {
+    return await this.reservationRepository.findOne({ where: { id } }) || null;
   }
 
-  
-  async updateReservation(id: string, updatedData: CreateReservationDto): Promise<Reservation> {
-    try {
-      await this.update(id, updatedData); 
-      return await this.findOneOrFail({ where: { id } });  
-    } catch (error) {
-      throw new Error('Reservation not found or update failed');
-    }
+  async updateReservation(id: string, updatedData: CreateReservationDto): Promise<Reservation | null> {
+    const reservation = await this.reservationRepository.findOne({ where: { id } });
+    if (!reservation) return null;
+    this.reservationRepository.merge(reservation, updatedData);
+    return await this.reservationRepository.save(reservation);
   }
 
-  
   async deleteReservation(id: string): Promise<void> {
-    try {
-      await this.softDelete(id);  
-    } catch (error) {
-      throw new Error('Reservation not found');
-    }
+    await this.reservationRepository.softDelete(id);
   }
 
- 
   async getAllReservations(): Promise<Reservation[]> {
-    return await this.find();  
+    return await this.reservationRepository.find();
   }
 }

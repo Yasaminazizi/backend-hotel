@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HotelRepository } from '../model/repository/hotel.repository';
 import { RoomRepository } from '../model/repository/room.repository';
 import { ReservationRepository } from '../model/repository/reservation.repository';
 import { CreateHotelDto } from '../dto/create-hotel.dto';
@@ -11,15 +10,13 @@ import { Hotel } from '../model/entity/hotel.entity';
 import { Room } from '../model/entity/room.entity';
 import { Reservation } from '../model/entity/reservation.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { HotelRepository } from '../model/repository/hotel.repository';
 
 @Injectable()
 export class HotelService {
   constructor(
-    @InjectRepository(HotelRepository)
     private readonly hotelRepository: HotelRepository,
-    @InjectRepository(RoomRepository)
     private readonly roomRepository: RoomRepository,
-    @InjectRepository(ReservationRepository)
     private readonly reservationRepository: ReservationRepository,
   ) {}
 

@@ -5,12 +5,15 @@ import { HotelController } from './controller/hotel.controller';
 import { HotelRepository } from './model/repository/hotel.repository';
 import { RoomRepository } from './model/repository/room.repository'; 
 import { ReservationRepository } from './model/repository/reservation.repository'; 
+import { Hotel } from './model/entity/hotel.entity';
+import { Room } from './model/entity/room.entity';
+import { Reservation } from './model/entity/reservation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([HotelRepository, RoomRepository, ReservationRepository]), 
+    TypeOrmModule.forFeature([Hotel, Room, Reservation]), 
   ], 
   controllers: [HotelController],
-  providers: [HotelService, RoomRepository, ReservationRepository], 
+  providers: [HotelService, RoomRepository, ReservationRepository, HotelRepository], 
 })
 export class HotelModule {}

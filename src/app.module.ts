@@ -4,7 +4,7 @@ dotenv.config();
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
-import { HotelModule } from './Hotel/hotel.module';
+import { HotelModule } from './Hotel/hotel.module';  // مطمئن شوید که این وارد شده باشد
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -20,11 +20,14 @@ import { JwtModule } from '@nestjs/jwt';
       synchronize: true,
     }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION_TIME || '1w' },
+      secret: 'secretKey',
+      signOptions: { expiresIn: '60m' },
     }),
     UserModule,
-    HotelModule,
+    HotelModule,  
   ],
+  controllers:[],
+  providers:[],
+  
 })
 export class AppModule {}
