@@ -83,23 +83,21 @@ export class HotelService {
 
   async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {
     try {
-      return await this.roomRepository.createRoom(createRoomDto);  
+      return await this.roomRepository.createRoom(createRoomDto);
     } catch (error) {
-      throw new HttpException('Error creating room', HttpStatus.BAD_REQUEST);  
+      throw new HttpException('Error creating room', HttpStatus.BAD_REQUEST);
     }
   }
 
-  
   async getAllRooms(): Promise<Room[]> {
     try {
-      return await this.roomRepository.getAllRooms();
+      return await this.roomRepository.getAllRooms();  
     } catch (error) {
+      console.error(error); 
       throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-
-  
+  //get room by id
   async getRoomById(id: string): Promise<Room | null> {
     try {
       const room = await this.roomRepository.getRoomById(id);
@@ -112,7 +110,20 @@ export class HotelService {
     }
   }
 
-  
+  //delete room
+  async deleteRoom(id: string): Promise<void> {
+    try {
+      const room = await this.roomRepository.getRoomById(id);
+      if (!room) {
+        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+      }
+      await this.roomRepository.deleteRoom(id);
+    } catch (error) {
+      throw new HttpException('Error deleting room', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  //createreserve
   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
     try {
       return await this.reservationRepository.createReservation(createReservationDto);
@@ -121,7 +132,7 @@ export class HotelService {
     }
   }
 
-  
+  //get all reserve
   async getAllReservations(): Promise<Reservation[]> {
     try {
       return await this.reservationRepository.getAllReservations();
@@ -130,7 +141,7 @@ export class HotelService {
     }
   }
 
-  
+  //get reserve by id
   async getReservationById(id: string): Promise<Reservation | null> {
     try {
       const reservation = await this.reservationRepository.getReservationById(id);
@@ -140,6 +151,19 @@ export class HotelService {
       return reservation;
     } catch (error) {
       throw new HttpException('Error fetching reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  //delete reserve
+  async deleteReservation(id: string): Promise<void> {
+    try {
+      const reservation = await this.reservationRepository.getReservationById(id);
+      if (!reservation) {
+        throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
+      }
+      await this.reservationRepository.deleteReservation(id);
+    } catch (error) {
+      throw new HttpException('Error deleting reservation', HttpStatus.BAD_REQUEST);
     }
   }
 }

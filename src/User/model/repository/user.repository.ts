@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../model/entity/user.entity';  // Import User entity
+import { User } from '../../model/entity/user.entity';  
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -22,7 +22,7 @@ export class UserRepository {
 
   
   async getUserById(id: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { id } }) || null;
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   

@@ -17,8 +17,8 @@ export class Room {
   @Column({ type: 'decimal' })
   price: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  location: string;
+  @Column({ type: 'json' })
+  location: { floor: number, beds: number, description: string }; // location به صورت یک شیء ذخیره می‌شود
 
   @Column({ type: 'boolean', default: true })
   isAvailable: boolean;  

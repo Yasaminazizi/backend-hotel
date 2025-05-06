@@ -31,7 +31,10 @@ export class RoomRepository {
     await this.roomRepository.softDelete(id);
   }
 
+
+
   async getAllRooms(): Promise<Room[]> {
     return await this.roomRepository.find();
+
   }
 }

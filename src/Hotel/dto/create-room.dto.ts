@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateRoomDto {
   @IsString()
@@ -13,7 +13,17 @@ export class CreateRoomDto {
   @IsNotEmpty()
   price: number;
 
+  // location به صورت یک شیء تعریف می‌شود
+  location: {
+    floor: number;
+    beds: number;
+    description: string;
+  };
+
+  @IsBoolean()
+  isAvailable: boolean;
+
   @IsString()
   @IsNotEmpty()
-  location: string;
+  hotelId: string;  // ID for the hotel (you may need this to associate the room with a hotel)
 }

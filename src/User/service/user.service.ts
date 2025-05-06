@@ -19,26 +19,24 @@ export class UserService {
       createUserDto.password = hashedPassword;  
       return await this.userRepository.createUser(createUserDto);  
     } catch (error) {
+      console.error('Error creating user:', error); 
       throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);  
     }
   }
-
   
   async signup(createUserDto: CreateUserDto): Promise<any> {
     const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
     if (existingUser) {
       throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
     }
-
+  
     const user = await this.createUser(createUserDto);  
-
-    
+  
     return {
       message: 'User registered successfully',
       user,
     };
   }
-
   
   async getUserById(id: string): Promise<User | null> {
     try {
@@ -88,20 +86,34 @@ export class UserService {
   
   async login(phoneNumber: string, password: string): Promise<any> {
     try {
+      console.log('Login attempt for phone number:', phoneNumber);
+      
+      
       const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
       if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);  
+        console.log('User not found');
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-
+  
       
-      const isMatch = await bcrypt.compare(password, user.password);  
+      console.log('User found:', user);
+  
+      
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);  
+        console.log('Password mismatch for user:', phoneNumber);
+        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
       }
-
-      return { message: 'Login successful', user };  
+  
+      console.log('Password matched for user:', phoneNumber);
+  
+      return {
+        message: 'Login successful',
+        user,
+      };
     } catch (error) {
-      throw new HttpException('Error logging in', HttpStatus.INTERNAL_SERVER_ERROR);  
+      console.error('Error during login:', error);
+      throw new HttpException('Error loggin in', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

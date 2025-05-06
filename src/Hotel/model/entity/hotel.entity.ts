@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Room } from './room.entity';  
+import { Room } from './room.entity'; 
+import { Reservation } from './reservation.entity'; 
 
 @Entity()
 export class Hotel {
@@ -36,4 +37,5 @@ export class Hotel {
 
   @OneToMany(() => Room, (room) => room.hotel)
   rooms: Room[];
+
 }

@@ -48,10 +48,19 @@ export class HotelController {
     return this.hotelService.createRoom(createRoomDto);  
   }
 
-  
+  @Get('/rooms/:id')  
+async getRoomById(@Param('id') id: string) {
+  return this.hotelService.getRoomById(id);  
+}
+
   @Get('/rooms')
   async getAllRooms() {
     return this.hotelService.getAllRooms();  
+  }
+
+  @Delete('/rooms/:id')
+  async deleteRoom(@Param('id') id: string) {
+    return this.hotelService.deleteRoom(id);  
   }
 
   
@@ -64,5 +73,10 @@ export class HotelController {
   @Get('/reservations')
   async getAllReservations() {
     return this.hotelService.getAllReservations();  
+  }
+
+  @Delete('/reservations/:id')
+  async deleteReservation(@Param('id') id: string) {
+    return this.hotelService.deleteReservation(id);  
   }
 }

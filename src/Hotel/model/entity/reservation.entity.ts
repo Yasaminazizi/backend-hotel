@@ -27,5 +27,14 @@ export class Reservation {
   deletedAt: Date;
 
   @Column({ type: 'timestamp', nullable: true })
-  expirationDate: Date;  
+  @Expose()
+  checkInDate: Date;  
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Expose()
+  checkOutDate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Expose()
+  expirationDate: Date;
 }
