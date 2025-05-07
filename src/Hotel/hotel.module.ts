@@ -8,10 +8,11 @@ import { ReservationRepository } from './model/repository/reservation.repository
 import { Hotel } from './model/entity/hotel.entity';
 import { Room } from './model/entity/room.entity';
 import { Reservation } from './model/entity/reservation.entity';
+import { UserModule } from '../User/user.module'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Hotel, Room, Reservation]), 
+    TypeOrmModule.forFeature([Hotel, Room, Reservation,]), 
   ], 
   controllers: [HotelController],
   providers: [HotelService, RoomRepository, ReservationRepository, HotelRepository], 

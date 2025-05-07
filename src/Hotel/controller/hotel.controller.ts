@@ -9,24 +9,25 @@ import { UpdateHotelDto } from '../dto/update-hotel.dto';
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
-  
+  //check
   @Post('/')
   async createHotel(@Body() createHotelDto: CreateHotelDto) {
     return this.hotelService.createHotel(createHotelDto);  
   }
 
-  
+  //check
   @Get('/')
   async getAllHotels() {
     return this.hotelService.getAllHotels();  
   }
 
-  
+  //check
   @Get('/:id')
   async getHotelById(@Param('id') id: string) {
     return this.hotelService.getHotelById(id);  
   }
 
+  //check
   
   @Put('/:id')
   async updateHotel(
@@ -42,11 +43,13 @@ export class HotelController {
     return this.hotelService.deleteHotel(id);  
   }
 
-  
+  //check
   @Post('/rooms/')
   async createRoom(@Body() createRoomDto: CreateRoomDto) {
     return this.hotelService.createRoom(createRoomDto);  
   }
+
+  //check
 
   @Get('/rooms/:id')  
 async getRoomById(@Param('id') id: string) {
@@ -57,12 +60,12 @@ async getRoomById(@Param('id') id: string) {
   async getAllRooms() {
     return this.hotelService.getAllRooms();  
   }
-
+//check
   @Delete('/rooms/:id')
   async deleteRoom(@Param('id') id: string) {
     return this.hotelService.deleteRoom(id);  
   }
-
+//check
   
   @Post('/reservations/')
   async createReservation(@Body() createReservationDto: CreateReservationDto) {
@@ -70,11 +73,17 @@ async getRoomById(@Param('id') id: string) {
   }
 
   
+@Get('/reservations/:id')
+async getReservationById(@Param('id') id: string) {
+  return this.hotelService.getReservationById(id);  
+}
+
+  //??
   @Get('/reservations')
   async getAllReservations() {
     return this.hotelService.getAllReservations();  
   }
-
+//??
   @Delete('/reservations/:id')
   async deleteReservation(@Param('id') id: string) {
     return this.hotelService.deleteReservation(id);  

@@ -3,25 +3,24 @@ import { IsString, IsNotEmpty, IsDate, IsOptional } from 'class-validator';
 export class CreateReservationDto {
   @IsString()
   @IsNotEmpty()
-  hotelId: string;  // شناسه هتل
+  hotelId: string;  
 
   @IsString()
   @IsNotEmpty()
-  roomId: string;  // شناسه اتاق
+  roomId: string;  
 
   @IsString()
   @IsNotEmpty()
-  userId: string;  // شناسه کاربر
+  userId: string;  
 
   @IsDate()
   @IsNotEmpty()
-  checkInDate: Date;  // تاریخ ورود
+  checkInDate: Date;  
 
   @IsDate()
   @IsNotEmpty()
-  checkOutDate: Date;  // تاریخ خروج
-
+  checkOutDate: Date;  
   @IsDate()
   @IsOptional()
-  expirationDate?: Date;  // تاریخ انقضا (اختیاری)
+  expirationDate?: Date;  
 }

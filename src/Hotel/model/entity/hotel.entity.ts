@@ -37,5 +37,7 @@ export class Hotel {
 
   @OneToMany(() => Room, (room) => room.hotel)
   rooms: Room[];
-
+  
+  @OneToMany(() => Reservation, (reservation) => reservation.hotel)
+  reservations: Reservation[]; 
 }

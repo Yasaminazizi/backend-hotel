@@ -33,8 +33,20 @@ export class RoomRepository {
 
 
 
-  async getAllRooms(): Promise<Room[]> {
-    return await this.roomRepository.find();
+  // async getAllRooms(): Promise<Room[]> {
+  //   return await this.roomRepository.find();
 
+  // }
+
+  async getAllRooms(): Promise<Room[]> {
+    try {
+      const rooms = await this.roomRepository.find({
+        relations: ['hotel'], // بارگذاری هتل
+      });
+      return rooms;
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      throw error;  // خطای دقیق‌تری خواهیم داشت
+    }
   }
 }

@@ -28,7 +28,7 @@ export class User {
   })
   @Exclude()
   updatedAt: Date;
-
+  
   @DeleteDateColumn()
   @Expose()
   deletedAt: Date;

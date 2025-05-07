@@ -13,29 +13,92 @@ export class UserService {
   ) {}
 
   
+  // async createUser(createUserDto: CreateUserDto): Promise<User | null> {
+  //   try {
+  //     const hashedPassword = await bcrypt.hash(createUserDto.password, 10); 
+  //     createUserDto.password = hashedPassword;  
+  //     return await this.userRepository.createUser(createUserDto);  
+  //   } catch (error) {
+  //     console.error('Error creating user:', error); 
+  //     throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);  
+  //   }
+  // }
+  
+  // async signup(createUserDto: CreateUserDto): Promise<any> {
+  //   const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
+  //   if (existingUser) {
+  //     throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
+  //   }
+  
+  //   const user = await this.createUser(createUserDto);  
+  
+  //   return {
+  //     message: 'User registered successfully',
+  //     user,
+  //   };
+  // }
   async createUser(createUserDto: CreateUserDto): Promise<User | null> {
     try {
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10); 
+      
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       createUserDto.password = hashedPassword;  
+  
+      
       return await this.userRepository.createUser(createUserDto);  
     } catch (error) {
-      console.error('Error creating user:', error); 
-      throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);  
+      console.error('Error creating user:', error);
+      throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
     }
   }
   
   async signup(createUserDto: CreateUserDto): Promise<any> {
+    
     const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
     if (existingUser) {
-      throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
+      throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);
     }
   
+   
     const user = await this.createUser(createUserDto);  
-  
+    
     return {
       message: 'User registered successfully',
       user,
     };
+  }
+  
+  async login(phoneNumber: string, password: string): Promise<any> {
+    try {
+      console.log('Login attempt for phone number:', phoneNumber);
+  
+      
+      const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
+      if (!user) {
+        console.log('User not found');
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+  
+      console.log('User found:', user);
+  
+      
+      const isMatch = await bcrypt.hash(password, user.password);
+      console.log('Password match status:', isMatch);
+  
+      if (!isMatch) {
+        console.log('Password mismatch for user:', phoneNumber);
+        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      }
+  
+      console.log('Password matched for user:', phoneNumber);
+  
+      return {
+        message: 'Login successful',
+        user,
+      };
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw new HttpException('Error logging in', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   
   async getUserById(id: string): Promise<User | null> {
@@ -52,22 +115,24 @@ export class UserService {
 
   
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
+    console.log('Update request received with data:', updateUserDto); // اضافه کردن این خط برای بررسی داده‌ها
+
     const user = await this.userRepository.getUserById(id);
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);  
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);  
     }
 
-    
     if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+        console.log('Password provided:', updateUserDto.password); // بررسی رمز عبور ورودی
+        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
     try {
-      return await this.userRepository.updateUser(id, updateUserDto); 
+        return await this.userRepository.updateUser(id, updateUserDto); 
     } catch (error) {
-      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);  
+        throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);  
     }
-  }
+}
 
   
   async deleteUser(id: string): Promise<void> {
@@ -83,37 +148,46 @@ export class UserService {
     }
   }
 
-  
-  async login(phoneNumber: string, password: string): Promise<any> {
+  async getAllUsers(): Promise<User[]> {
     try {
-      console.log('Login attempt for phone number:', phoneNumber);
-      
-      
-      const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
-      if (!user) {
-        console.log('User not found');
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-  
-      
-      console.log('User found:', user);
-  
-      
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        console.log('Password mismatch for user:', phoneNumber);
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      }
-  
-      console.log('Password matched for user:', phoneNumber);
-  
-      return {
-        message: 'Login successful',
-        user,
-      };
+      const users = await this.userRepository.getAllUsers(); // دریافت تمام کاربران از ریپازیتوری
+      return users;
     } catch (error) {
-      console.error('Error during login:', error);
-      throw new HttpException('Error loggin in', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('Error fetching all users:', error);
+      throw new HttpException('Error fetching all users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  
+  // async login(phoneNumber: string, password: string): Promise<any> {
+  //   try {
+  //     console.log('Login attempt for phone number:', phoneNumber);
+      
+      
+  //     const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
+  //     if (!user) {
+  //       console.log('User not found');
+  //       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //     }
+  
+      
+  //     console.log('User found:', user);
+  
+      
+  //     const isMatch = await bcrypt.compare(password, user.password);
+  //     if (!isMatch) {
+  //       console.log('Password mismatch for user:', phoneNumber);
+  //       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+  //     }
+  
+  //     console.log('Password matched for user:', phoneNumber);
+  
+  //     return {
+  //       message: 'Login successful',
+  //       user,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error during login:', error);
+  //     throw new HttpException('Error loggin in', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 }

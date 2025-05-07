@@ -11,6 +11,7 @@ import { Room } from '../model/entity/room.entity';
 import { Reservation } from '../model/entity/reservation.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { HotelRepository } from '../model/repository/hotel.repository';
+import { UserRepository } from '../../User/model/repository/user.repository';  
 
 @Injectable()
 export class HotelService {
@@ -18,8 +19,9 @@ export class HotelService {
     private readonly hotelRepository: HotelRepository,
     private readonly roomRepository: RoomRepository,
     private readonly reservationRepository: ReservationRepository,
+      
   ) {}
-
+//
   
   async createHotel(createHotelDto: CreateHotelDto): Promise<Hotel> {
     try {
@@ -89,14 +91,24 @@ export class HotelService {
     }
   }
 
-  async getAllRooms(): Promise<Room[]> {
-    try {
-      return await this.roomRepository.getAllRooms();  
-    } catch (error) {
-      console.error(error); 
-      throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  // async getAllRooms(): Promise<Room[]> {
+  //   try {
+  //     return await this.roomRepository.getAllRooms();  
+  //   } catch (error) {
+  //     console.error(error); 
+  //     throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+  // hotel.service.ts
+
+async getAllRooms(): Promise<Room[]> {
+  try {
+    return await this.roomRepository.getAllRooms();
+  } catch (error) {
+    console.error('Error fetching rooms:', error);
+    throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
   }
+}
   //get room by id
   async getRoomById(id: string): Promise<Room | null> {
     try {
@@ -123,7 +135,7 @@ export class HotelService {
     }
   }
 
-  //createreserve
+  createreserve
   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
     try {
       return await this.reservationRepository.createReservation(createReservationDto);
@@ -131,6 +143,44 @@ export class HotelService {
       throw new HttpException('Error creating reservation', HttpStatus.BAD_REQUEST);
     }
   }
+  // async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+  //   try {
+  //     const { hotelId, roomId, userId, checkInDate, checkOutDate, expirationDate } = createReservationDto;
+
+  //     // Retrieve the hotel
+  //     const hotel = await this.hotelRepository.getHotelById(hotelId);
+  //     if (!hotel) {
+  //       throw new HttpException('Hotel not found', HttpStatus.NOT_FOUND);
+  //     }
+
+  //     // Retrieve the room
+  //     const room = await this.roomRepository.getRoomById(roomId);
+  //     if (!room) {
+  //       throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+  //     }
+
+  //     // Retrieve the user
+  //     const user = await this.userRepository.getUserById(userId);
+  //     if (!user) {
+  //       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //     }
+
+  //     // Create reservation
+  //     const reservation = this.reservationRepository.create({
+  //       user,
+  //       room,
+  //       hotel, // Add the hotel relation
+  //       checkInDate,
+  //       checkOutDate,
+  //       expirationDate,
+  //     });
+
+  //     return await this.reservationRepository.save(reservation);
+  //   } catch (error) {
+  //     console.error('Error creating reservation:', error);
+  //     throw new HttpException('Error creating reservation', HttpStatus.BAD_REQUEST);
+  //   }
+  // }
 
   //get all reserve
   async getAllReservations(): Promise<Reservation[]> {
@@ -142,18 +192,31 @@ export class HotelService {
   }
 
   //get reserve by id
+  // async getReservationById(id: string): Promise<Reservation | null> {
+  //   try {
+  //     const reservation = await this.reservationRepository.getReservationById(id);
+  //     if (!reservation) {
+  //       throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
+  //     }
+  //     return reservation;
+  //   } catch (error) {
+  //     throw new HttpException('Error fetching reservation', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+
   async getReservationById(id: string): Promise<Reservation | null> {
     try {
+      console.log('Fetching reservation with id:', id);
       const reservation = await this.reservationRepository.getReservationById(id);
       if (!reservation) {
         throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
       }
       return reservation;
     } catch (error) {
+      console.error('Error fetching reservation:', error);
       throw new HttpException('Error fetching reservation', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
   //delete reserve
   async deleteReservation(id: string): Promise<void> {
     try {

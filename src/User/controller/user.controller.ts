@@ -6,22 +6,29 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
+ //check
   @Post('/signup')
   async signup(@Body() createUserDto: CreateUserDto) {
     return this.userService.signup(createUserDto);
   }
-
+  //check
   @Post('/login')
   async login(@Body() loginDto: { phoneNumber: string, password: string }) {
     return this.userService.login(loginDto.phoneNumber, loginDto.password);
   }
-
+  //check
   @Get('/:id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
   }
 
+  //check
+  @Get('/')
+async getAllUsers() {
+  return this.userService.getAllUsers();  
+}
+
+  //check
   @Patch('/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUser(id, updateUserDto);

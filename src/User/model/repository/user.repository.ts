@@ -5,7 +5,7 @@ import { User } from '../../model/entity/user.entity';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
-//for push on git
+
 @Injectable()
 export class UserRepository {
   constructor(
@@ -31,13 +31,24 @@ export class UserRepository {
   }
 
   
+  // async updateUser(id: string, updatedData: UpdateUserDto): Promise<User | null> {
+  //   const user = await this.userRepository.findOne({ where: { id } });
+  //   if (!user) return null;  
+  //   if (updatedData.password) {
+  //     updatedData.password = await bcrypt.hash(updatedData.password, 10);  
+  //   }
+  //   this.userRepository.merge(user, updatedData);  
+  //   return await this.userRepository.save(user);
+  // }
   async updateUser(id: string, updatedData: UpdateUserDto): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) return null;  
+    if (!user) return null;
+  
     if (updatedData.password) {
-      updatedData.password = await bcrypt.hash(updatedData.password, 10);  
+      updatedData.password = await bcrypt.hash(updatedData.password, 10);
     }
-    this.userRepository.merge(user, updatedData);  
+  
+    this.userRepository.merge(user, updatedData);
     return await this.userRepository.save(user);
   }
 

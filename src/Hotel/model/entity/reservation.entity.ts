@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Up
 import { Expose } from 'class-transformer';
 import { User } from '../../../User/model/entity/user.entity';
 import { Room } from './room.entity';
+import { Hotel } from './hotel.entity';  // اطمینان از import صحیح این خط
 
 @Entity()
 export class Reservation {
@@ -13,6 +14,9 @@ export class Reservation {
 
   @ManyToOne(() => Room, (room) => room.reservations)
   room: Room;
+
+  @ManyToOne(() => Hotel, (hotel) => hotel.reservations)
+  hotel: Hotel;  // اضافه کردن رابطه به هتل
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Expose()
@@ -28,7 +32,7 @@ export class Reservation {
 
   @Column({ type: 'timestamp', nullable: true })
   @Expose()
-  checkInDate: Date;  
+  checkInDate: Date;
 
   @Column({ type: 'timestamp', nullable: true })
   @Expose()
