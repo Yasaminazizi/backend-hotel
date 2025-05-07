@@ -4,7 +4,7 @@ dotenv.config();
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
-import { HotelModule } from './Hotel/hotel.module';  // مطمئن شوید که این وارد شده باشد
+import { HotelModule } from './Hotel/hotel.module';  
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
