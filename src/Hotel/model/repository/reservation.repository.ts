@@ -16,15 +16,7 @@ export class ReservationRepository {
     return await this.reservationRepository.save(reservation);
   }
 
-  // async getReservationById(id: string): Promise<Reservation | null> {
-  //   return await this.reservationRepository.findOne({ where: { id } }) || null;
-  // }
-  // async getReservationById(id: string): Promise<Reservation | null> {
-  //   return await this.reservationRepository.findOne({
-  //     where: { id },
-  //     relations: ['user', 'room', 'hotel'], // لود کردن اطلاعات مرتبط
-  //   }) || null;
-  // }
+  
   async getReservationById(id: string): Promise<Reservation | null> {
     return await this.reservationRepository
       .createQueryBuilder('reservation')

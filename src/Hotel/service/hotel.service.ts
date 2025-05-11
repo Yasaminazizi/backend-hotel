@@ -230,19 +230,30 @@ async getAllRooms(): Promise<Room[]> {
   //   }
   // }
 
-  async getReservationById(id: string): Promise<Reservation | null> {
+  async getReservationById(id: string, userId: string): Promise<Reservation> {
     try {
       console.log('Fetching reservation with id:', id);
       const reservation = await this.reservationRepository.getReservationById(id);
+  
       if (!reservation) {
         throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
       }
+  
+      
+      if (reservation.user?.id !== userId) {
+        throw new HttpException('Forbidden: You do not have access to this reservation', HttpStatus.FORBIDDEN);
+      }
+  
       return reservation;
     } catch (error) {
       console.error('Error fetching reservation:', error);
       throw new HttpException('Error fetching reservation', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  
+  
+  
+  
   //delete reserve
   async deleteReservation(id: string): Promise<void> {
     try {

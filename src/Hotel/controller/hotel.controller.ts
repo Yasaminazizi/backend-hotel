@@ -91,18 +91,24 @@ async createReservation(
   @Request() req,
 ) {
   console.log('User from token:', req.user); 
-  const userIdFromToken = req.user?.userId;
+  const userIdFromToken = req.user?.sub;
   if (!userIdFromToken) {
     throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
   }
   return this.hotelService.createReservation({ ...createReservationDto, userId: userIdFromToken });
 }
 
-  
+@UseGuards(AuthGuard)
 @Get('/reservations/:id')
-async getReservationById(@Param('id') id: string) {
-  return this.hotelService.getReservationById(id);  
+async getReservationById(@Param('id') id: string, @Request() req) {
+  const userIdFromToken = req.user?.sub;
+  if (!userIdFromToken) {
+    throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+  }
+  return this.hotelService.getReservationById(id, userIdFromToken);
 }
+
+
 
   //??
   @Get('/reservations')
