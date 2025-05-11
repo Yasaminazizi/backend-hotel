@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Get, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Post,Put, Body, Get, Param, Delete, Patch, Request, UseGuards } from '@nestjs/common';
 import { HotelService } from '../service/hotel.service';
 import { CreateHotelDto } from '../dto/create-hotel.dto';
 import { CreateRoomDto } from '../dto/create-room.dto';
 import { CreateReservationDto } from '../dto/create-reservation.dto';
 import { UpdateHotelDto } from '../dto/update-hotel.dto';
+import { AuthGuard } from '../../User/guard/guard';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('hotels')
 export class HotelController {
@@ -22,6 +24,7 @@ export class HotelController {
   }
 
   //check
+  
   @Get('/:id')
   async getHotelById(@Param('id') id: string) {
     return this.hotelService.getHotelById(id);  
@@ -66,11 +69,34 @@ async getRoomById(@Param('id') id: string) {
     return this.hotelService.deleteRoom(id);  
   }
 //check
-  
-  @Post('/reservations/')
-  async createReservation(@Body() createReservationDto: CreateReservationDto) {
-    return this.hotelService.createReservation(createReservationDto);  
+//  @UseGuards(AuthGuard)
+//   @Post('/reservations/')
+//   async createReservation(@Body() createReservationDto: CreateReservationDto) {
+//     return this.hotelService.createReservation(createReservationDto);  
+//   }
+
+// @UseGuards(AuthGuard)
+// @Post('/reservations/')
+// async createReservation(
+//   @Body() createReservationDto: CreateReservationDto,
+//   @Request() req,
+// ) {
+//   const userId = req.user?.userId;
+//   return this.hotelService.createReservation({ ...createReservationDto, userId });
+// }
+@UseGuards(AuthGuard)
+@Post('/reservations/')
+async createReservation(
+  @Body() createReservationDto: CreateReservationDto,
+  @Request() req,
+) {
+  console.log('User from token:', req.user); 
+  const userIdFromToken = req.user?.userId;
+  if (!userIdFromToken) {
+    throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
   }
+  return this.hotelService.createReservation({ ...createReservationDto, userId: userIdFromToken });
+}
 
   
 @Get('/reservations/:id')

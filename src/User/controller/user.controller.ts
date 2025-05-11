@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Get, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Patch, Request, UseGuards } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { AuthGuard } from '../guard/guard';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('users')
 export class UserController {
@@ -17,25 +19,54 @@ export class UserController {
     return this.userService.login(loginDto.phoneNumber, loginDto.password);
   }
   //check
-  @Get('/:id')
-  async getUserById(@Param('id') id: string) {
-    return this.userService.getUserById(id);
+  
+  @UseGuards(AuthGuard) 
+ @Get('/:id')
+  async getUserById(@Param('id') id: string, @Request() req) {
+  
+  const userIdFromToken = req.user.sub;
+
+  if (userIdFromToken !== id) {
+    throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
   }
 
-  //check
-  @Get('/')
-async getAllUsers() {
-  return this.userService.getAllUsers();  
+  return this.userService.getUserById(id);
 }
 
   //check
-  @Patch('/:id')
-  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.updateUser(id, updateUserDto);
+  @UseGuards(AuthGuard)
+  @Get('/')
+ async getAllUsers() {
+  return this.userService.getAllUsers();  
+}
+
+
+@UseGuards(AuthGuard)
+@Patch('/:id')
+async updateUser( @Param('id') id: string,@Body() updateUserDto: UpdateUserDto,@Request() req: any
+) {
+  const userIdFromToken = req.user.sub;
+
+  if (userIdFromToken !== id) {
+    throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
   }
 
-  @Delete('/:id')
-  async deleteUser(@Param('id') id: string) {
-    return this.userService.deleteUser(id);
+  return this.userService.updateUser(id, updateUserDto);
+}
+
+@UseGuards(AuthGuard)
+@Delete('/:id')
+async deleteUser(
+  @Param('id') id: string,
+  @Request() req: any
+) {
+  const userIdFromToken = req.user.sub;
+
+  if (userIdFromToken !== id) {
+    throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
   }
+
+  return this.userService.deleteUser(id);
+}
+
 }

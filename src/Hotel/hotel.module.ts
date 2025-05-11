@@ -9,9 +9,16 @@ import { Hotel } from './model/entity/hotel.entity';
 import { Room } from './model/entity/room.entity';
 import { Reservation } from './model/entity/reservation.entity';
 import { UserModule } from '../User/user.module'
+import { JwtModule } from '@nestjs/jwt';
+import { AuthGuard } from '../User/guard/guard'; 
+import { UserRepository } from 'src/User/model/repository/user.repository';
+
+
 
 @Module({
   imports: [
+    UserModule,
+    JwtModule.register({}),
     TypeOrmModule.forFeature([Hotel, Room, Reservation,]), 
   ], 
   controllers: [HotelController],

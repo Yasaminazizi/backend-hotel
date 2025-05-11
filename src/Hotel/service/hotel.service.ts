@@ -12,6 +12,8 @@ import { Reservation } from '../model/entity/reservation.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { HotelRepository } from '../model/repository/hotel.repository';
 import { UserRepository } from '../../User/model/repository/user.repository';  
+import { BadRequestException } from '@nestjs/common';
+
 
 @Injectable()
 export class HotelService {
@@ -19,6 +21,7 @@ export class HotelService {
     private readonly hotelRepository: HotelRepository,
     private readonly roomRepository: RoomRepository,
     private readonly reservationRepository: ReservationRepository,
+     private readonly userRepository: UserRepository,
       
   ) {}
 //
@@ -135,14 +138,37 @@ async getAllRooms(): Promise<Room[]> {
     }
   }
 
-  createreserve
+  // async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+  //   try {
+  //     return await this.reservationRepository.createReservation(createReservationDto);
+  //   } catch (error) {
+  //     throw new HttpException('Error creating reservation', HttpStatus.BAD_REQUEST);
+  //   }
+  // }
   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
     try {
+      
+      const userId = createReservationDto.userId;
+
+      if (!userId) {
+        throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+      }
+
+     
+      const user = await this.userRepository.getUserById(userId);
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
       return await this.reservationRepository.createReservation(createReservationDto);
-    } catch (error) {
-      throw new HttpException('Error creating reservation', HttpStatus.BAD_REQUEST);
+    }  catch (error) {
+      console.error('Reservation creation error:', error); 
+      throw new BadRequestException('Error creating reservation');
     }
-  }
+}
+  
+
+  /////////////////////////////////////////////////////////////////////////
   // async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
   //   try {
   //     const { hotelId, roomId, userId, checkInDate, checkOutDate, expirationDate } = createReservationDto;

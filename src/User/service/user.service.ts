@@ -4,101 +4,160 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { User } from '../model/entity/user.entity'; 
 import { HttpException, HttpStatus } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';  
+
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,  
-  ) {}
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+   
+  ) {
+  }
 
+  generateToken(user: any): string {
+    const payload = { 
+      phoneNumber: user.phoneNumber, 
+      sub: user.id 
+    };
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET_KEY'),  
+      expiresIn: this.configService.get('JWT_EXPIRATION_TIME') 
+    });
+  }
+
+  async verifyToken(token: string): Promise<any> {
+    try {
+      
+      
+      if (!token) {
+        throw new HttpException('Token is missing or malformed', HttpStatus.UNAUTHORIZED);
+      }
+
+      
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET_KEY'),
+      });
+      return decoded;  //if verify
+    } catch (error) {
+      throw new HttpException('Invalid or expired token', HttpStatus.UNAUTHORIZED);
+    }
+  }
   
   // async createUser(createUserDto: CreateUserDto): Promise<User | null> {
   //   try {
-  //     const hashedPassword = await bcrypt.hash(createUserDto.password, 10); 
+      
+  //     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
   //     createUserDto.password = hashedPassword;  
+  
+      
   //     return await this.userRepository.createUser(createUserDto);  
   //   } catch (error) {
-  //     console.error('Error creating user:', error); 
-  //     throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);  
+  //     console.error('Error creating user:', error);
+  //     throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
   //   }
   // }
   
   // async signup(createUserDto: CreateUserDto): Promise<any> {
+    
   //   const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
   //   if (existingUser) {
-  //     throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
+  //     throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);
   //   }
   
+   
   //   const user = await this.createUser(createUserDto);  
-  
+    
   //   return {
   //     message: 'User registered successfully',
   //     user,
   //   };
   // }
-  async createUser(createUserDto: CreateUserDto): Promise<User | null> {
-    try {
-      
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      createUserDto.password = hashedPassword;  
+  
+  // async login(phoneNumber: string, password: string): Promise<any> {
+  //   try {
+  //     console.log('Login attempt for phone number:', phoneNumber);
   
       
-      return await this.userRepository.createUser(createUserDto);  
+  //     const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
+  //     if (!user) {
+  //       console.log('User not found');
+  //       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //     }
+  
+  //     console.log('User found:', user);
+  
+      
+  //     const isMatch = await bcrypt.hash(password, user.password);
+  //     console.log('Password match status:', isMatch);
+  
+  //     if (!isMatch) {
+  //       console.log('Password mismatch for user:', phoneNumber);
+  //       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+  //     }
+  
+  //     console.log('Password matched for user:', phoneNumber);
+  
+  //     return {
+  //       message: 'Login successful',
+  //       user,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error during login:', error);
+  //     throw new HttpException('Error logging in', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
+
+  async createUser(createUserDto: CreateUserDto): Promise<User | null> {
+    try {
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+      createUserDto.password = hashedPassword;
+      return await this.userRepository.createUser(createUserDto);
     } catch (error) {
       console.error('Error creating user:', error);
       throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
     }
   }
-  
+
   async signup(createUserDto: CreateUserDto): Promise<any> {
-    
     const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
     if (existingUser) {
-      throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
     }
-  
-   
+
     const user = await this.createUser(createUserDto);  
-    
+    const token = this.generateToken(user);  
+
     return {
       message: 'User registered successfully',
       user,
+      token,  
     };
   }
-  
+
   async login(phoneNumber: string, password: string): Promise<any> {
-    try {
-      console.log('Login attempt for phone number:', phoneNumber);
-  
-      
-      const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
-      if (!user) {
-        console.log('User not found');
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-  
-      console.log('User found:', user);
-  
-      
-      const isMatch = await bcrypt.hash(password, user.password);
-      console.log('Password match status:', isMatch);
-  
-      if (!isMatch) {
-        console.log('Password mismatch for user:', phoneNumber);
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      }
-  
-      console.log('Password matched for user:', phoneNumber);
-  
-      return {
-        message: 'Login successful',
-        user,
-      };
-    } catch (error) {
-      console.error('Error during login:', error);
-      throw new HttpException('Error logging in', HttpStatus.INTERNAL_SERVER_ERROR);
+    const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);  
     }
+    const hashPassword = await bcrypt.hash(password, 10);
+    try {
+      const isMatch = await bcrypt.compare(user.password, hashPassword)  ;
+    } catch (error) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+    
+    const token = this.generateToken(user);
+    
+    return {
+      message: 'Login successful',
+      token,  
+    };
   }
   
   async getUserById(id: string): Promise<User | null> {
@@ -115,7 +174,7 @@ export class UserService {
 
   
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
-    console.log('Update request received with data:', updateUserDto); // اضافه کردن این خط برای بررسی داده‌ها
+    console.log('Update request received with data:', updateUserDto); 
 
     const user = await this.userRepository.getUserById(id);
     if (!user) {
@@ -123,7 +182,7 @@ export class UserService {
     }
 
     if (updateUserDto.password) {
-        console.log('Password provided:', updateUserDto.password); // بررسی رمز عبور ورودی
+        console.log('Password provided:', updateUserDto.password); 
         updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
@@ -150,7 +209,7 @@ export class UserService {
 
   async getAllUsers(): Promise<User[]> {
     try {
-      const users = await this.userRepository.getAllUsers(); // دریافت تمام کاربران از ریپازیتوری
+      const users = await this.userRepository.getAllUsers(); 
       return users;
     } catch (error) {
       console.error('Error fetching all users:', error);

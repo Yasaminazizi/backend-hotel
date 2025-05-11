@@ -3,24 +3,25 @@ import { IsString, IsNotEmpty, IsDate, IsOptional } from 'class-validator';
 export class CreateReservationDto {
   @IsString()
   @IsNotEmpty()
-  hotelId: string;  
+  hotelId: string;
 
   @IsString()
   @IsNotEmpty()
-  roomId: string;  
+  roomId: string;
 
   @IsString()
-  @IsNotEmpty()
-  userId: string;  
+  @IsOptional() 
+  userId?: string; //get token
 
   @IsDate()
   @IsNotEmpty()
-  checkInDate: Date;  
+  checkInDate: Date;
 
   @IsDate()
   @IsNotEmpty()
-  checkOutDate: Date;  
+  checkOutDate: Date;
+
   @IsDate()
   @IsOptional()
-  expirationDate?: Date;  
+  expirationDate?: Date;
 }
