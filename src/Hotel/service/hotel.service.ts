@@ -13,7 +13,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { HotelRepository } from '../model/repository/hotel.repository';
 import { UserRepository } from '../../User/model/repository/user.repository';  
 import { BadRequestException } from '@nestjs/common';
-
+import { SearchRoomDto } from '../dto/search-room.dto';
 
 @Injectable()
 export class HotelService {
@@ -94,16 +94,7 @@ export class HotelService {
     }
   }
 
-  // async getAllRooms(): Promise<Room[]> {
-  //   try {
-  //     return await this.roomRepository.getAllRooms();  
-  //   } catch (error) {
-  //     console.error(error); 
-  //     throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
-  //   }
-  // }
-  // hotel.service.ts
-
+  
 async getAllRooms(): Promise<Room[]> {
   try {
     return await this.roomRepository.getAllRooms();
@@ -138,13 +129,7 @@ async getAllRooms(): Promise<Room[]> {
     }
   }
 
-  // async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
-  //   try {
-  //     return await this.reservationRepository.createReservation(createReservationDto);
-  //   } catch (error) {
-  //     throw new HttpException('Error creating reservation', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
+  
   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
     try {
       
@@ -266,4 +251,36 @@ async getAllRooms(): Promise<Room[]> {
       throw new HttpException('Error deleting reservation', HttpStatus.BAD_REQUEST);
     }
   }
+
+  async searchRoomAvailability(dto: SearchRoomDto): Promise<{ available: boolean; message: string }> {
+    const { roomId, checkIn, checkOut } = dto;
+  
+    const room = await this.roomRepository.getRoomById(roomId);
+    if (!room) {
+      throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+    }
+  
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+  
+    if (checkInDate >= checkOutDate) {
+      throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
+    }
+  
+    const overlapping = await this.reservationRepository.findOverlappingReservations(
+      roomId,
+      checkInDate,
+      checkOutDate
+    );
+  
+    if (overlapping.length > 0) {
+      throw new HttpException('Room is already reserved in the selected date range', HttpStatus.CONFLICT);
+    }
+  
+    return {
+      available: true,
+      message: 'Room is available for reservation',
+    };
+  }
+
 }

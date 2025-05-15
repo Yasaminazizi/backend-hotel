@@ -1,22 +1,35 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,JoinColumn } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { User } from '../../../User/model/entity/user.entity';
 import { Room } from './room.entity';
-import { Hotel } from './hotel.entity';  // اطمینان از import صحیح این خط
+import { Hotel } from './hotel.entity'; 
+
 
 @Entity()
 export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ type: 'varchar' }) 
+  userId: string;
+
   @ManyToOne(() => User, (user) => user.reservations)
+  @JoinColumn({ name: 'userId' }) 
   user: User;
 
+  @Column({ type: 'varchar' })
+  roomId: string;
+
   @ManyToOne(() => Room, (room) => room.reservations)
+  @JoinColumn({ name: 'roomId' })
   room: Room;
 
+  @Column({ type: 'varchar' })
+  hotelId: string;
+
   @ManyToOne(() => Hotel, (hotel) => hotel.reservations)
-  hotel: Hotel;  // اضافه کردن رابطه به هتل
+  @JoinColumn({ name: 'hotelId' })
+  hotel: Hotel;  
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Expose()

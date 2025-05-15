@@ -24,7 +24,7 @@ export class ReservationRepository {
       .leftJoinAndSelect('reservation.room', 'room')
       .leftJoinAndSelect('reservation.hotel', 'hotel')
       .where('reservation.id = :id', { id })
-      .getOne(); // یا getMany() بسته به نیاز شما
+      .getOne(); 
   }
 
 
@@ -43,4 +43,14 @@ export class ReservationRepository {
   async getAllReservations(): Promise<Reservation[]> {
     return await this.reservationRepository.find();
   }
+
+  async findOverlappingReservations(roomId: string, checkIn: Date, checkOut: Date): Promise<Reservation[]> {
+    return await this.reservationRepository
+      .createQueryBuilder('reservation')
+      .where('reservation.roomId = :roomId', { roomId })
+      .andWhere('reservation.checkOutDate > :checkIn', { checkIn })
+      .andWhere('reservation.checkInDate < :checkOut', { checkOut })
+      .getMany();
+  }
+
 }

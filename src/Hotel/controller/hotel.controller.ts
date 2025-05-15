@@ -6,6 +6,7 @@ import { CreateReservationDto } from '../dto/create-reservation.dto';
 import { UpdateHotelDto } from '../dto/update-hotel.dto';
 import { AuthGuard } from '../../User/guard/guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { SearchRoomDto } from '../dto/search-room.dto';
 
 @Controller('hotels')
 export class HotelController {
@@ -120,4 +121,9 @@ async getReservationById(@Param('id') id: string, @Request() req) {
   async deleteReservation(@Param('id') id: string) {
     return this.hotelService.deleteReservation(id);  
   }
+
+  @Post('/rooms/search')
+    async searchRoom(@Body() searchDto: SearchRoomDto) {
+   return this.hotelService.searchRoomAvailability(searchDto);
+ }
 }

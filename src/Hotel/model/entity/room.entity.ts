@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,JoinColumn } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { Hotel } from './hotel.entity';
 import { Reservation } from '../../../Hotel/model/entity/reservation.entity';
@@ -35,8 +35,12 @@ export class Room {
   @Expose()
   deletedAt: Date;
 
+  @Column({ type: 'varchar' })
+  hotelId: string;
+
   @ManyToOne(() => Hotel, (hotel) => hotel.rooms)
   hotel: Hotel;
+
 
   @OneToMany(() => Reservation, (reservation) => reservation.room)
   reservations: Reservation[];
