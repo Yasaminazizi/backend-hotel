@@ -8,6 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';  
+import { UserRole } from '../model/enum/role.enum';
 
 
 @Injectable()
@@ -23,7 +24,9 @@ export class UserService {
   generateToken(user: any): string {
     const payload = { 
       phoneNumber: user.phoneNumber, 
-      sub: user.id 
+      sub: user.id,
+      role: user.role 
+      
     };
     return this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET_KEY'),  
@@ -48,73 +51,43 @@ export class UserService {
       throw new HttpException('Invalid or expired token', HttpStatus.UNAUTHORIZED);
     }
   }
+
+  //create super admin
+  async createDefaultAdmin(): Promise<void> {
+    const defaultPhone = '09389428017';
+    const defaultUsername = 'superadmin';
   
-  // async createUser(createUserDto: CreateUserDto): Promise<User | null> {
-  //   try {
-      
-  //     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-  //     createUserDto.password = hashedPassword;  
+    const existing = await this.userRepository.getUserByPhoneNumber(defaultPhone);
+    console.log('Looking for user with phone 09389428016...');
+    console.log('Found user:', existing);
+    if (existing) {
+      console.log('Super admin already exists');
+      return;
+    }
   
-      
-  //     return await this.userRepository.createUser(createUserDto);  
-  //   } catch (error) {
-  //     console.error('Error creating user:', error);
-  //     throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
+    await this.createUser({
+      username: defaultUsername,
+      phoneNumber: defaultPhone,
+      password: 'Super123!',
+      role: UserRole.SUPER_ADMIN,
+    });
+    console.log('Found user:', existing);
+    console.log('Default super admin created successfully');
+  }
+
+  //create admin by admin
+  async createAdmin(createUserDto: CreateUserDto): Promise<User> {
+    createUserDto.role = UserRole.SUPER_ADMIN;
+    createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
+    return await this.userRepository.createUser(createUserDto);
+  }
   
-  // async signup(createUserDto: CreateUserDto): Promise<any> {
-    
-  //   const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
-  //   if (existingUser) {
-  //     throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);
-  //   }
-  
-   
-  //   const user = await this.createUser(createUserDto);  
-    
-  //   return {
-  //     message: 'User registered successfully',
-  //     user,
-  //   };
-  // }
-  
-  // async login(phoneNumber: string, password: string): Promise<any> {
-  //   try {
-  //     console.log('Login attempt for phone number:', phoneNumber);
-  
-      
-  //     const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
-  //     if (!user) {
-  //       console.log('User not found');
-  //       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //     }
-  
-  //     console.log('User found:', user);
-  
-      
-  //     const isMatch = await bcrypt.hash(password, user.password);
-  //     console.log('Password match status:', isMatch);
-  
-  //     if (!isMatch) {
-  //       console.log('Password mismatch for user:', phoneNumber);
-  //       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-  //     }
-  
-  //     console.log('Password matched for user:', phoneNumber);
-  
-  //     return {
-  //       message: 'Login successful',
-  //       user,
-  //     };
-  //   } catch (error) {
-  //     console.error('Error during login:', error);
-  //     throw new HttpException('Error logging in', HttpStatus.INTERNAL_SERVER_ERROR);
-  //   }
-  // }
 
   async createUser(createUserDto: CreateUserDto): Promise<User | null> {
     try {
+      if (!createUserDto.role) {
+        createUserDto.role = UserRole.USER;  
+      }
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       createUserDto.password = hashedPassword;
       return await this.userRepository.createUser(createUserDto);
@@ -124,21 +97,44 @@ export class UserService {
     }
   }
 
+  // async signup(createUserDto: CreateUserDto): Promise<any> {
+  //   const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
+  //   if (existingUser) {
+  //     throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
+  //   }
+
+  //   const user = await this.createUser(createUserDto);  
+  //   const token = this.generateToken(user);  
+
+  //   return {
+  //     message: 'User registered successfully',
+  //     user,
+  //     token,  
+  //   };
+  // }
   async signup(createUserDto: CreateUserDto): Promise<any> {
+    
     const existingUser = await this.userRepository.getUserByPhoneNumber(createUserDto.phoneNumber); 
     if (existingUser) {
       throw new HttpException('User with this phone number already exists', HttpStatus.BAD_REQUEST);  
     }
-
+  
+    
+    const existingUsername = await this.userRepository.getUserByUsername(createUserDto.username);
+    if (existingUsername) {
+      throw new HttpException('Username is already taken', HttpStatus.BAD_REQUEST);
+    }
+  
     const user = await this.createUser(createUserDto);  
     const token = this.generateToken(user);  
-
+  
     return {
       message: 'User registered successfully',
       user,
       token,  
     };
   }
+  
 
   async login(phoneNumber: string, password: string): Promise<any> {
     const user = await this.userRepository.getUserByPhoneNumber(phoneNumber);
@@ -215,6 +211,10 @@ export class UserService {
       console.error('Error fetching all users:', error);
       throw new HttpException('Error fetching all users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+  //get all person by super admin
+  async getAllUsersAndAdmins(): Promise<User[]> {
+    return this.userRepository.findUsersAndAdmins();
   }
   
   // async login(phoneNumber: string, password: string): Promise<any> {

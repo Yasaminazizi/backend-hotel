@@ -2,9 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTabl
 import { Expose, Exclude } from 'class-transformer';
 import { Role } from './role.entity';  
 import { Reservation } from '../../../Hotel/model/entity/reservation.entity'; 
+import { UserRole } from '../enum/role.enum';
 
 @Entity()
 export class User {
+
+  @Column({ 
+    type: 'enum', 
+    enum: UserRole, 
+    default: UserRole.USER 
+  })
+  role: UserRole;
+
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -33,9 +42,10 @@ export class User {
   @Expose()
   deletedAt: Date;
 
-  @ManyToMany(() => Role)
-  @JoinTable()
-  roles: Role[];
+  // @ManyToMany(() => Role)
+  // @JoinTable()
+  // roles: Role[];
+  
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations: Reservation[];

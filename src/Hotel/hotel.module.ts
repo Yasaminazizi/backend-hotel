@@ -12,16 +12,17 @@ import { UserModule } from '../User/user.module'
 import { JwtModule } from '@nestjs/jwt';
 import { AuthGuard } from '../User/guard/guard'; 
 import { UserRepository } from 'src/User/model/repository/user.repository';
-
+import { forwardRef } from '@nestjs/common';
 
 
 @Module({
   imports: [
-    UserModule,
+    forwardRef(() => UserModule),
     JwtModule.register({}),
     TypeOrmModule.forFeature([Hotel, Room, Reservation,]), 
   ], 
   controllers: [HotelController],
-  providers: [HotelService, RoomRepository, ReservationRepository, HotelRepository], 
+  providers: [HotelService, RoomRepository, ReservationRepository, HotelRepository],
+  exports:[HotelService,HotelRepository,ReservationRepository], 
 })
 export class HotelModule {}

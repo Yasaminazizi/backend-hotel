@@ -3,10 +3,21 @@ import { Expose } from 'class-transformer';
 import { User } from '../../../User/model/entity/user.entity';
 import { Room } from './room.entity';
 import { Hotel } from './hotel.entity'; 
+import { ReservationStatus } from '../enum/status.enum';
+
+
 
 
 @Entity()
 export class Reservation {
+
+  @Column({
+    type: 'enum',
+    enum: ReservationStatus,
+    default: ReservationStatus.ACTIVE,
+  })
+  status: ReservationStatus;
+  
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

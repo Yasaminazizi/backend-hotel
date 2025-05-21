@@ -3,6 +3,7 @@ import { UserService } from '../service/user.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from '../guard/guard';
+import { RolesGuard } from '../../User/guard/roles.guard'; 
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('users')

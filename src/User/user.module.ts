@@ -7,17 +7,22 @@ import { User } from './model/entity/user.entity';
 import { AuthGuard } from './guard/guard';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { AdminController } from './controller/admin.controller';  
+import { HotelModule } from '../Hotel/hotel.module';
+import { forwardRef } from '@nestjs/common';
+import { InitService } from './service/init.service'; 
 
 //for push on git
 @Module({
   imports: [
+    forwardRef(() => HotelModule,),
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([ User]),  
     TypeOrmModule.forFeature([User]),
     JwtModule.register({}),
   ],
-  controllers: [UserController],
-  providers: [UserService,UserRepository,AuthGuard],  
+  controllers: [UserController,AdminController],
+  providers: [UserService,UserRepository,AuthGuard,InitService],  
   exports:[UserService,UserRepository],
 })
 export class UserModule {}
