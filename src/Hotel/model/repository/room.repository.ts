@@ -48,5 +48,10 @@ export class RoomRepository {
       console.error('Error fetching rooms:', error);
       throw error;  // خطای دقیق‌تری خواهیم داشت
     }
+    // const query = this.roomRepository
+    // .createQueryBuilder('Room')
+    // .leftJoinAndSelect('room.name', 'name');
+    // return await query.getMany();
+    // return await this.roomRepository.find();
   }
 }

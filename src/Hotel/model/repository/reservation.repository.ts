@@ -58,6 +58,12 @@ export class ReservationRepository {
   }
 
   async getAllReservations(): Promise<Reservation[]> {
+    const query = this.reservationRepository
+    .createQueryBuilder('reservation')
+    .leftJoinAndSelect('reservation.user', 'user')
+    .leftJoinAndSelect('reservation.room', 'room')
+    .leftJoinAndSelect('reservation.hotel', 'hotel');
+    return await query.getMany();
     return await this.reservationRepository.find();
   }
 

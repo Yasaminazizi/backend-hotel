@@ -26,7 +26,7 @@ export class HotelService {
       
   ) {}
 
-  //All methods for Hotel:
+  //All methods for Hotel:+
   async createHotel(createHotelDto: CreateHotelDto): Promise<Hotel> {
     try {
       return await this.hotelRepository.createHotel(createHotelDto);  
@@ -95,7 +95,7 @@ export class HotelService {
     }
   }
 
-  
+  //??
 async getAllRooms(): Promise<Room[]> {
   try {
     return await this.roomRepository.getAllRooms();
@@ -131,27 +131,67 @@ async getAllRooms(): Promise<Room[]> {
   }
 
   //All methods for Reservations:
-  async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
-    try {
-      
-      const userId = createReservationDto.userId;
 
-      if (!userId) {
-        throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
-      }
+  
+//   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+//     try {
+      
+//       const userId = createReservationDto.userId;
+
+//       if (!userId) {
+//         throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+//       }
 
      
-      const user = await this.userRepository.getUserById(userId);
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
+//       const user = await this.userRepository.getUserById(userId);
+//       if (!user) {
+//         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+//       }
 
-      return await this.reservationRepository.createReservation(createReservationDto);
-    }  catch (error) {
-      console.error('Reservation creation error:', error); 
-      throw new BadRequestException('Error creating reservation');
+//       return await this.reservationRepository.createReservation(createReservationDto);
+//     }  catch (error) {
+//       console.error('Reservation creation error:', error); 
+//       throw new BadRequestException('Error creating reservation');
+//     }
+// }
+
+async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+  try {
+    const userId = createReservationDto.userId;
+
+    if (!userId) {
+      throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
     }
+
+    
+    const user = await this.userRepository.getUserById(userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    
+    await this.searchRoomAvailability({
+      roomId: createReservationDto.roomId,
+      checkIn: createReservationDto.checkInDate,
+      checkOut: createReservationDto.checkOutDate,
+    });
+
+    
+    return await this.reservationRepository.createReservation(createReservationDto);
+
+  } catch (error) {
+    console.error('Reservation creation error:', error);
+    
+    
+    if (error instanceof HttpException) {
+      throw error;
+    }
+
+    
+    throw new BadRequestException('Error creating reservation');
+  }
 }
+
   
   async getAllReservations(): Promise<Reservation[]> {
     try {

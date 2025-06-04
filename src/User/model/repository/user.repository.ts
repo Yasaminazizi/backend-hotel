@@ -7,6 +7,8 @@ import { UpdateUserDto } from '../../dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { IsNull } from 'typeorm';
 import { UserRole } from '../../model/enum/role.enum'; 
+import { instanceToPlain } from 'class-transformer';
+
 
 @Injectable()
 export class UserRepository {
@@ -25,6 +27,7 @@ export class UserRepository {
   
   async getUserById(id: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id } });
+    
   }
 
   //for signup

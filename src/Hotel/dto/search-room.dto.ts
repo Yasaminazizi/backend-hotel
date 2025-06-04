@@ -1,5 +1,12 @@
+import { Type } from 'class-transformer';
+
+
 export class SearchRoomDto {
-    roomId: string;
-    checkIn: string; 
-    checkOut: string;
-  }
+  roomId: string;
+
+  @Type(() => Date)
+  checkIn: Date;
+
+  @Type(() => Date)
+  checkOut: Date;
+}

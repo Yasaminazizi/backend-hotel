@@ -12,6 +12,7 @@ export class UserController {
  //check
   @Post('/signup')
   async signup(@Body() createUserDto: CreateUserDto) {
+    console.log('کاربر جدید:', createUserDto);
     return this.userService.signup(createUserDto);
   }
   //check

@@ -11,14 +11,14 @@ import { SearchRoomDto } from '../dto/search-room.dto';
 import { UserRole } from '../../User/model/enum/role.enum';
 import { CreateUserDto } from '../../User/dto/create-user.dto';
 import { ReservationStatus } from '../model/enum/status.enum';
-import {FilterReservationDto} from '../dto/filter-reservation.dto'
+import {FilterReservationDto} from '../dto/filter-reservation.dto';
 
 
 @Controller('hotels')
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
-  //check
+  // --------------------------FOR HOTEL---------------------
   @Post('/')
   async createHotel(@Body() createHotelDto: CreateHotelDto) {
     return this.hotelService.createHotel(createHotelDto);  
@@ -53,7 +53,7 @@ export class HotelController {
     return this.hotelService.deleteHotel(id);  
   }
 
-  //check
+  // ---------------------FOR ROOM-------------------
   @Post('/rooms/')
   async createRoom(@Body() createRoomDto: CreateRoomDto) {
     return this.hotelService.createRoom(createRoomDto);  
@@ -62,102 +62,102 @@ export class HotelController {
   //check
 
   @Get('/rooms/:id')  
-async getRoomById(@Param('id') id: string) {
+ async getRoomById(@Param('id') id: string) {
   return this.hotelService.getRoomById(id);  
-}
+ }
 
   @Get('/rooms')
   async getAllRooms() {
     return this.hotelService.getAllRooms();  
   }
-//check
+ //check
   @Delete('/rooms/:id')
   async deleteRoom(@Param('id') id: string) {
     return this.hotelService.deleteRoom(id);  
   }
-//check
+//  -------------------------FOR RESERVATION--------------------------
 
-@UseGuards(AuthGuard)
-@Post('/reservations/')
-async createReservation(
+  @UseGuards(AuthGuard)
+  @Post('/reservations/')
+  async createReservation(
   @Body() createReservationDto: CreateReservationDto,
   @Request() req,
-) {
+ ) {
   console.log('User from token:', req.user); 
   const userIdFromToken = req.user?.sub;
   if (!userIdFromToken) {
     throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
   }
   return this.hotelService.createReservation({ ...createReservationDto, userId: userIdFromToken });
-}
-//for admin
-@UseGuards(AuthGuard,RolesGuard)
-@Get('/reservations/user')
-async getAllUserReservations(
-  @Request() req,
-  @Query('status') status?: ReservationStatus,
-) {
-  const userId = req.user?.sub;
-  return this.hotelService.getAllUserReservations(userId, status);
-}
+ }
+
+ //for admin
+  //  @UseGuards(AuthGuard)
+   @Get('/reservations/user')
+   async getAllUserReservations(
+     @Request() req,
+     @Query('status') status?: ReservationStatus,
+    ) {
+    const userId = req.user?.sub;
+    return this.hotelService.getAllUserReservations(userId, status);
+   }
 
 
 
 
 
-//////////////////
-  //??
+  
   @Get('/reservations')
   async getAllReservations() {
     return this.hotelService.getAllReservations();  
   }
 
   
-  @Get('/reservations/admin/filter')
-  @UseGuards(AuthGuard,RolesGuard)
-  async filterReservations(@Query() filterDto: FilterReservationDto) {
-    return this.hotelService.filterReservationsByAdmin(filterDto);
-  }
+  // @Get('/reservations/admin/filter')
+  // // @UseGuards(AuthGuard)
+  // async filterReservations(@Query() filterDto: FilterReservationDto) {
+  //   return this.hotelService.filterReservationsByAdmin(filterDto);
+  // }
 
   
   
-//??
+ //??
   @Delete('/reservations/:id')
   async deleteReservation(@Param('id') id: string) {
     return this.hotelService.deleteReservation(id);  
   }
 
   @UseGuards(AuthGuard)
-@Get('/reservations/:id')
-async getReservationById(@Param('id') id: string, @Request() req) {
+ @Get('/reservations/:id')
+ async getReservationById(@Param('id') id: string, @Request() req) {
   const userIdFromToken = req.user?.sub;
   if (!userIdFromToken) {
     throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
   }
   return this.hotelService.getReservationById(id, userIdFromToken);
-}
+ }
 
   @Post('/rooms/search')
     async searchRoom(@Body() searchDto: SearchRoomDto) {
    return this.hotelService.searchRoomAvailability(searchDto);
  }
- @UseGuards(AuthGuard,RolesGuard)
-     @Patch('/reservations/:id/cancel')
-     async cancelReservation(@Param('id') id: string, @Request() req) {
-     if (req.user.role !== UserRole.ADMIN) {
-       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
-     }
-     return this.hotelService.cancelReservation(id);
-    }
+  //  @UseGuards(AuthGuard,RolesGuard)
+  //      @Patch('/reservations/:id/cancel')
+  //      async cancelReservation(@Param('id') id: string, @Request() req) {
+  //      if (req.user.role !== UserRole.ADMIN) {
+  //        throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+  //      }
+  //      return this.hotelService.cancelReservation(id);
+  //     }
 
-     @UseGuards(AuthGuard,RolesGuard)
-     @Patch('/reservations/:id/checkout')
-     async checkoutReservation(@Param('id') id: string, @Request() req) {
-     if (req.user.role !== UserRole.ADMIN) {
-       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
-      }
-      return this.hotelService.checkoutReservation(id);
-     }
+  //      @UseGuards(AuthGuard,RolesGuard)
+  //      @Patch('/reservations/:id/checkout')
+  //      async checkoutReservation(@Param('id') id: string, @Request() req) {
+  //      if (req.user.role !== UserRole.ADMIN) {
+  //        throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+  //       }
+  //       return this.hotelService.checkoutReservation(id);
+  //      }
 
 
      

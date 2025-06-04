@@ -23,7 +23,9 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   phoneNumber: string;  
 
+  
   @Column({ type: 'varchar', length: 255 })
+  @Exclude()
   password: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -41,11 +43,6 @@ export class User {
   @DeleteDateColumn()
   @Expose()
   deletedAt: Date;
-
-  // @ManyToMany(() => Role)
-  // @JoinTable()
-  // roles: Role[];
-  
 
   @OneToMany(() => Reservation, (reservation) => reservation.user)
   reservations: Reservation[];
