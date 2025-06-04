@@ -90,4 +90,16 @@ export class AdminHotelController {
   async deleteRoom(@Param('id') id: string) {
     return this.hotelService.deleteRoom(id);
   }
+
+
+  @UseGuards(AuthGuard)
+  @Get('/rooms/reservations/:id')
+  async getReservationById(@Param('id') id: string, @Request() req) {
+    const userIdFromToken = req.user?.sub;
+    if (!userIdFromToken) {
+      throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+    }
+    return this.hotelService.getReservationById(id, userIdFromToken);
+  }
+
 }
