@@ -92,6 +92,11 @@ export class HotelController {
     return this.hotelService.searchRoomAvailability(searchDto);
   }
 
+  @Post('/rooms/reservations/search/all')
+  async searchAllRoom(@Body() searchDto: SearchRoomDto) {
+    return this.hotelService.searchRoomAvailabilityAll(searchDto);
+  }
+
   @Delete('/rooms/reservations/:id')
   async deleteReservation(@Param('id') id: string) {
     return this.hotelService.deleteReservation(id);

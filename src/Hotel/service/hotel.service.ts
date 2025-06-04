@@ -11,30 +11,30 @@ import { Room } from '../model/entity/room.entity';
 import { Reservation } from '../model/entity/reservation.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { HotelRepository } from '../model/repository/hotel.repository';
-import { UserRepository } from '../../User/model/repository/user.repository';  
+import { UserRepository } from '../../User/model/repository/user.repository';
 import { BadRequestException } from '@nestjs/common';
 import { SearchRoomDto } from '../dto/search-room.dto';
 import { ReservationStatus } from '../model/enum/status.enum';
-import {FilterReservationDto} from '../dto/filter-reservation.dto'
+import { FilterReservationDto } from '../dto/filter-reservation.dto'
 @Injectable()
 export class HotelService {
   constructor(
     private readonly hotelRepository: HotelRepository,
     private readonly roomRepository: RoomRepository,
     private readonly reservationRepository: ReservationRepository,
-     private readonly userRepository: UserRepository,
-      
-  ) {}
+    private readonly userRepository: UserRepository,
+
+  ) { }
 
   //All methods for Hotel:+
   async createHotel(createHotelDto: CreateHotelDto): Promise<Hotel> {
     try {
-      return await this.hotelRepository.createHotel(createHotelDto);  
+      return await this.hotelRepository.createHotel(createHotelDto);
     } catch (error) {
       throw new HttpException('Error creating hotel', HttpStatus.BAD_REQUEST);
     }
   }
-  
+
   async getAllHotels(): Promise<Hotel[]> {
     try {
       const hotels = await this.hotelRepository.getAllHotels();
@@ -59,7 +59,7 @@ export class HotelService {
     }
   }
 
- 
+
   async updateHotel(id: string, updateHotelDto: UpdateHotelDto): Promise<Hotel | null> {
     try {
       const hotel = await this.hotelRepository.getHotelById(id);
@@ -72,7 +72,7 @@ export class HotelService {
     }
   }
 
-  
+
   async deleteHotel(id: string): Promise<void> {
     try {
       const hotel = await this.hotelRepository.getHotelById(id);
@@ -96,15 +96,15 @@ export class HotelService {
   }
 
   //??
-async getAllRooms(): Promise<Room[]> {
-  try {
-    return await this.roomRepository.getAllRooms();
-  } catch (error) {
-    console.error('Error fetching rooms:', error);
-    throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
+  async getAllRooms(): Promise<Room[]> {
+    try {
+      return await this.roomRepository.getAllRooms();
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      throw new HttpException('Error fetching rooms', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
-}
-  
+
   async getRoomById(id: string): Promise<Room | null> {
     try {
       const room = await this.roomRepository.getRoomById(id);
@@ -117,7 +117,7 @@ async getAllRooms(): Promise<Room[]> {
     }
   }
 
-  
+
   async deleteRoom(id: string): Promise<void> {
     try {
       const room = await this.roomRepository.getRoomById(id);
@@ -132,67 +132,67 @@ async getAllRooms(): Promise<Room[]> {
 
   //All methods for Reservations:
 
-  
-//   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
-//     try {
-      
-//       const userId = createReservationDto.userId;
 
-//       if (!userId) {
-//         throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
-//       }
+  //   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+  //     try {
 
-     
-//       const user = await this.userRepository.getUserById(userId);
-//       if (!user) {
-//         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-//       }
+  //       const userId = createReservationDto.userId;
 
-//       return await this.reservationRepository.createReservation(createReservationDto);
-//     }  catch (error) {
-//       console.error('Reservation creation error:', error); 
-//       throw new BadRequestException('Error creating reservation');
-//     }
-// }
+  //       if (!userId) {
+  //         throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+  //       }
 
-async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
-  try {
-    const userId = createReservationDto.userId;
 
-    if (!userId) {
-      throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+  //       const user = await this.userRepository.getUserById(userId);
+  //       if (!user) {
+  //         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //       }
+
+  //       return await this.reservationRepository.createReservation(createReservationDto);
+  //     }  catch (error) {
+  //       console.error('Reservation creation error:', error); 
+  //       throw new BadRequestException('Error creating reservation');
+  //     }
+  // }
+
+  async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
+    try {
+      const userId = createReservationDto.userId;
+
+      if (!userId) {
+        throw new HttpException('Unauthorized: userId missing from token', HttpStatus.UNAUTHORIZED);
+      }
+
+
+      const user = await this.userRepository.getUserById(userId);
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+
+      await this.searchRoomAvailability({
+        roomId: createReservationDto.roomId,
+        checkIn: createReservationDto.checkInDate,
+        checkOut: createReservationDto.checkOutDate,
+      });
+
+
+      return await this.reservationRepository.createReservation(createReservationDto);
+
+    } catch (error) {
+      console.error('Reservation creation error:', error);
+
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+
+      throw new BadRequestException('Error creating reservation');
     }
-
-    
-    const user = await this.userRepository.getUserById(userId);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    
-    await this.searchRoomAvailability({
-      roomId: createReservationDto.roomId,
-      checkIn: createReservationDto.checkInDate,
-      checkOut: createReservationDto.checkOutDate,
-    });
-
-    
-    return await this.reservationRepository.createReservation(createReservationDto);
-
-  } catch (error) {
-    console.error('Reservation creation error:', error);
-    
-    
-    if (error instanceof HttpException) {
-      throw error;
-    }
-
-    
-    throw new BadRequestException('Error creating reservation');
   }
-}
 
-  
+
   async getAllReservations(): Promise<Reservation[]> {
     try {
       return await this.reservationRepository.getAllReservations();
@@ -201,30 +201,30 @@ async createReservation(createReservationDto: CreateReservationDto): Promise<Res
     }
   }
 
-  
+
 
   async getReservationById(id: string, userId: string): Promise<Reservation> {
     try {
       console.log('Fetching reservation with id:', id);
       const reservation = await this.reservationRepository.getReservationById(id);
-  
+
       if (!reservation) {
         throw new HttpException('Reservation not found', HttpStatus.NOT_FOUND);
       }
-  
-      
+
+
       if (reservation.user?.id !== userId) {
         throw new HttpException('Forbidden: You do not have access to this reservation', HttpStatus.FORBIDDEN);
       }
-  
+
       return reservation;
     } catch (error) {
       console.error('Error fetching reservation:', error);
       throw new HttpException('Error fetching reservation', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
-  
+
+
   async deleteReservation(id: string): Promise<void> {
     try {
       const reservation = await this.reservationRepository.getReservationById(id);
@@ -246,7 +246,7 @@ async createReservation(createReservationDto: CreateReservationDto): Promise<Res
     reservation.status = ReservationStatus.CANCELED;
     return this.reservationRepository.updateReservation(id, reservation);
   }
-  
+
   async checkoutReservation(id: string) {
     const reservation = await this.reservationRepository.getReservationById(id);
     if (!reservation) {
@@ -272,45 +272,72 @@ async createReservation(createReservationDto: CreateReservationDto): Promise<Res
       console.log('FILTER RECEIVED:', filter);
       const results = await this.reservationRepository.filterReservations(filter);
       console.log('FILTER RESULTS:', results);
-  
+
       return results;
     } catch (error) {
       console.error('Error filtering reservations:', error);
       throw new HttpException('مشکلی در فیلتر رزروها رخ داد', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
 
   //search methods:
   async searchRoomAvailability(dto: SearchRoomDto): Promise<{ available: boolean; message: string }> {
     const { roomId, checkIn, checkOut } = dto;
-  
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    if (checkInDate >= checkOutDate) {
+      throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!roomId) {
+      throw new HttpException('Room ID is required', HttpStatus.BAD_REQUEST);
+    }
+
     const room = await this.roomRepository.getRoomById(roomId);
     if (!room) {
       throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
     }
-  
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
-  
-    if (checkInDate >= checkOutDate) {
-      throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
-    }
-  
     const overlapping = await this.reservationRepository.findOverlappingReservations(
       roomId,
       checkInDate,
       checkOutDate
     );
-  
+
     if (overlapping.length > 0) {
       throw new HttpException('Room is already reserved in the selected date range', HttpStatus.CONFLICT);
     }
-  
+
     return {
       available: true,
       message: 'Room is available for reservation',
     };
+  }
+
+  //search methods:
+  async searchRoomAvailabilityAll(dto: SearchRoomDto): Promise<Room[]> {
+    const { roomId, checkIn, checkOut } = dto;
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    if (checkInDate >= checkOutDate) {
+      throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
+    }
+    const allRooms = await this.roomRepository.getAllRooms();
+    const overlapping = await this.reservationRepository.findOverlappingReservationsForAllRooms(
+      allRooms.map(room => room.id),
+      checkInDate,
+      checkOutDate
+    );
+
+    return allRooms.filter(room => {
+      return !overlapping.some(reservation => reservation.roomId === room.id);
+    }
+    );
+
   }
 
 }
