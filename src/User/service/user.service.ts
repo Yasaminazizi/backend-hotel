@@ -155,13 +155,14 @@ export class UserService {
     };
   }
 
-  async getUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User> {
     try {
       const user = await this.userRepository.getUserById(id);
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-      return user;
+      const { password, ...userWithoutPassword } = user; // Exclude password from the response
+      return userWithoutPassword as User;
     } catch (error) {
       throw new HttpException('Error fetching user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -205,6 +206,10 @@ export class UserService {
   async getAllUsers(): Promise<User[]> {
     try {
       const users = await this.userRepository.getAllUsers();
+      const usersWithoutPassword = users.map(user => {
+        const { password, ...userWithoutPassword } = user; // Exclude password from the response
+        return userWithoutPassword as User;
+      });
       return users;
     } catch (error) {
       console.error('Error fetching all users:', error);

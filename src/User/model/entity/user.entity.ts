@@ -1,16 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { Expose, Exclude } from 'class-transformer';
-import { Role } from './role.entity';  
-import { Reservation } from '../../../Hotel/model/entity/reservation.entity'; 
+import { Role } from './role.entity';
+import { Reservation } from '../../../Hotel/model/entity/reservation.entity';
 import { UserRole } from '../enum/role.enum';
 
 @Entity()
 export class User {
 
-  @Column({ 
-    type: 'enum', 
-    enum: UserRole, 
-    default: UserRole.USER 
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER
   })
   role: UserRole;
 
@@ -21,11 +21,10 @@ export class User {
   username: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
-  phoneNumber: string;  
+  phoneNumber: string;
 
-  
+
   @Column({ type: 'varchar', length: 255 })
-  @Exclude()
   password: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -39,7 +38,7 @@ export class User {
   })
   @Exclude()
   updatedAt: Date;
-  
+
   @DeleteDateColumn()
   @Expose()
   deletedAt: Date;
