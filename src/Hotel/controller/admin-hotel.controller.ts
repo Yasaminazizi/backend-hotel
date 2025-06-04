@@ -80,7 +80,7 @@ export class AdminHotelController {
 
   // ---------------------FOR ROOM-------------------
   @UseGuards(AuthGuard)
-  @Post('/rooms/')
+  @Post('/rooms')
   async createRoom(@Body() createRoomDto: CreateRoomDto) {
     return this.hotelService.createRoom(createRoomDto);
   }

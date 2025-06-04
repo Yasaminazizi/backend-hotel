@@ -19,27 +19,27 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) { }
 
   //check
-  @Get('/')
+  @Get('')
   async getAllHotels() {
     return this.hotelService.getAllHotels();
   }
 
   //check
 
+  @Get('/rooms')
+  async getAllRooms() {
+    return this.hotelService.getAllRooms();
+  }
+
+
   @Get('/:id')
   async getHotelById(@Param('id') id: string) {
     return this.hotelService.getHotelById(id);
   }
 
-
   @Get('/rooms/:id')
   async getRoomById(@Param('id') id: string) {
     return this.hotelService.getRoomById(id);
-  }
-
-  @Get('/rooms')
-  async getAllRooms() {
-    return this.hotelService.getAllRooms();
   }
   //  -------------------------FOR RESERVATION--------------------------
 
