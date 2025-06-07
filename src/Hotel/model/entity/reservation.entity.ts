@@ -65,4 +65,7 @@ export class Reservation {
   @Column({ type: 'timestamp', nullable: true })
   @Expose()
   expirationDate: Date;
+
+  @Column({ type: 'int', default: 1 })
+  quantity: number;
 }

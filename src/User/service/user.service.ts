@@ -153,6 +153,7 @@ export class UserService {
       message: 'Login successful',
       token,
     };
+    console.log("Login attempt:", phoneNumber, password);
   }
 
   async getUserById(id: string): Promise<User> {

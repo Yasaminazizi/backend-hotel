@@ -130,8 +130,16 @@ export class HotelService {
     }
   }
 
+  
+  
+
   //All methods for Reservations:
 
+  //get reserve by selfuser in profile
+  async getReservationsByUser(userId: string): Promise<Reservation[]> {
+    return await this.reservationRepository.getReservationsByUserId(userId);
+  }
+  
 
   //   async createReservation(createReservationDto: CreateReservationDto): Promise<Reservation> {
   //     try {
@@ -317,27 +325,135 @@ export class HotelService {
   }
 
   //search methods:
-  async searchRoomAvailabilityAll(dto: SearchRoomDto): Promise<Room[]> {
-    const { roomId, checkIn, checkOut } = dto;
-
+  async searchRoomAvailabilityAll(dto: SearchRoomDto): Promise<{ roomModel: Room, quantity: number }[]> {
+    const { checkIn, checkOut } = dto;
+  
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-
+  
+    // 🟡 1. بررسی تاریخ‌ها
+    console.log('🔍 Check-in:', checkInDate.toISOString());
+    console.log('🔍 Check-out:', checkOutDate.toISOString());
+  
     if (checkInDate >= checkOutDate) {
+      console.log('🚫 تاریخ ورود بزرگتر یا مساوی با خروجه');
       throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
     }
+  
     const allRooms = await this.roomRepository.getAllRooms();
+  
+    // 🟡 2. نمایش اتاق‌های دیتابیس
+    console.log('🏨 Total room models from DB:', allRooms.length);
+    allRooms.forEach(room => {
+      console.log(`➡️ Room: ${room.name} | ID: ${room.id} | Quantity: ${room.quantity}`);
+    });
+  
     const overlapping = await this.reservationRepository.findOverlappingReservationsForAllRooms(
       allRooms.map(room => room.id),
       checkInDate,
       checkOutDate
     );
-
-    return allRooms.filter(room => {
-      return !overlapping.some(reservation => reservation.roomId === room.id);
+  
+    // 🟡 3. نمایش رزروهای تداخلی
+    console.log('🛑 Overlapping reservations found:', overlapping.length);
+    overlapping.forEach(res => {
+      console.log(`⚠️ Reserved Room ID: ${res.roomId} | Quantity: ${res.quantity}`);
+    });
+  
+    const reservedCountByRoomId: Record<string, number> = {};
+    overlapping.forEach(res => {
+      reservedCountByRoomId[res.roomId] = (reservedCountByRoomId[res.roomId] || 0) + res.quantity;
+    });
+  
+    // 🟡 4. محاسبه و نمایش موجودی نهایی هر اتاق
+    const availableRooms = allRooms
+      .map(room => {
+        const reserved = reservedCountByRoomId[room.id] || 0;
+        const remaining = room.quantity - reserved;
+        console.log(`✅ Room ${room.name} | Total: ${room.quantity} | Reserved: ${reserved} | Remaining: ${remaining}`);
+        return {
+          roomModel: room,
+          quantity: remaining
+        };
+      })
+      .filter(room => room.quantity > 0);
+  
+    
+    console.log('🟢 Total available rooms returned:', availableRooms.length);
+  
+    if (availableRooms.length === 0) {
+      throw new HttpException('No rooms available for the selected date range', HttpStatus.NOT_FOUND);
     }
-    );
-
+  
+    return availableRooms;
   }
+  
+  
+  
+  
+  
+  // async searchRoomAvailabilityAll(dto: SearchRoomDto): Promise<Room[]> {
+  //   const { checkIn, checkOut } = dto;
+  
+  //   const checkInDate = new Date(checkIn);
+  //   const checkOutDate = new Date(checkOut);
+  
+  //   if (checkInDate >= checkOutDate) {
+  //     throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
+  //   }
+  
+  //   const allRooms = await this.roomRepository.getAllRooms();
+  //   console.log('Total rooms:', allRooms.length);
+  
+  //   const overlapping = await this.reservationRepository.findOverlappingReservationsForAllRooms(
+  //     allRooms.map(room => room.id),
+  //     checkInDate,
+  //     checkOutDate
+  //   );
+  //   console.log('Overlapping reservations:', overlapping.length);
+  
+  //   const availableRooms = allRooms.filter(room => {
+  //     return !overlapping.some(reservation => reservation.roomId === room.id);
+  //   });
+  
+  //   console.log('Available rooms:', availableRooms.length);
+  
+  //   if (availableRooms.length === 0) {
+  //     throw new HttpException('No rooms available for the selected date range', HttpStatus.NOT_FOUND);
+  //   }
+  
+  //   return availableRooms;
+  // }
+  
+  // async searchRoomAvailabilityAll(dto: SearchRoomDto): Promise<Room[]> {
+  //   const { checkIn, checkOut } = dto;
+  
+  //   const checkInDate = new Date(checkIn);
+  //   const checkOutDate = new Date(checkOut);
+  
+  //   if (checkInDate >= checkOutDate) {
+  //     throw new HttpException('Invalid date range', HttpStatus.BAD_REQUEST);
+  //   }
+  
+  //   const allRooms = await this.roomRepository.getAllRooms();
+  
+  //   const overlapping = await this.reservationRepository.findOverlappingReservationsForAllRooms(
+  //     allRooms.map(room => room.id),
+  //     checkInDate,
+  //     checkOutDate
+  //   );
+  
+  //   const availableRooms = allRooms.filter(room => {
+  //     return !overlapping.some(reservation => reservation.roomId === room.id);
+  //   });
+  
+  //   if (availableRooms.length === 0) {
+      
+  //     throw new HttpException('No rooms available for the selected date range', HttpStatus.NOT_FOUND);
+  //   }
+  
+  //   return availableRooms;
+  // }
+  
 
 }

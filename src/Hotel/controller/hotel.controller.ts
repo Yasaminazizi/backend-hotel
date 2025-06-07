@@ -46,6 +46,9 @@ export class HotelController {
   async getRoomById(@Param('id') id: string) {
     return this.hotelService.getRoomById(id);
   }
+
+  
+
   //  -------------------------FOR RESERVATION--------------------------
 
   @UseGuards(AuthGuard)
@@ -61,6 +64,18 @@ export class HotelController {
     }
     return this.hotelService.createReservation({ ...createReservationDto, userId: userIdFromToken });
   }
+
+  @UseGuards(AuthGuard)
+@ Get('/user/reservations')
+ async getUserReservations(@Request() req) {
+  const userId = req.user?.sub;
+  if (!userId) {
+    throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+  }
+
+  return this.hotelService.getReservationsByUser(userId);
+ }
+
 
   //for admin
   //  @UseGuards(AuthGuard)
@@ -91,7 +106,7 @@ export class HotelController {
   async searchRoom(@Body() searchDto: SearchRoomDto) {
     return this.hotelService.searchRoomAvailability(searchDto);
   }
-
+  // @UseGuards(AuthGuard)
   @Post('/rooms/reservations/search/all')
   async searchAllRoom(@Body() searchDto: SearchRoomDto) {
     return this.hotelService.searchRoomAvailabilityAll(searchDto);
@@ -101,6 +116,8 @@ export class HotelController {
   async deleteReservation(@Param('id') id: string) {
     return this.hotelService.deleteReservation(id);
   }
+
+  
 
 
   //  @UseGuards(AuthGuard,RolesGuard)

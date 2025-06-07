@@ -32,7 +32,7 @@ export class UserController {
   }
 
 
-  // @UseGuards(AuthGuard)
+   @UseGuards(AuthGuard)
   @Patch('/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Request() req: any
   ) {

@@ -3,6 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Room } from '../../model/entity/room.entity';
 import { CreateRoomDto } from '../../dto/create-room.dto';
+import { Between,LessThan, MoreThan } from 'typeorm';
+import { Reservation } from '../../model/entity/reservation.entity';
+
+
 
 @Injectable()
 export class RoomRepository {
@@ -54,4 +58,6 @@ export class RoomRepository {
     // return await query.getMany();
     // return await this.roomRepository.find();
   }
+
+  
 }

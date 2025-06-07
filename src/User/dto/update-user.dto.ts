@@ -5,9 +5,10 @@ export class UpdateUserDto {
   @IsOptional()
   username?: string;  
 
-  @IsPhoneNumber('IR')  
+  @IsString()
+  @MinLength(11)
   @IsOptional()
-  phoneNumber?: string;  
+ 
 
   @IsString()
   @MinLength(6)

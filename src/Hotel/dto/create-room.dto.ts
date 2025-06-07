@@ -13,7 +13,7 @@ export class CreateRoomDto {
   @IsNotEmpty()
   price: number;
 
-  // location به صورت یک شیء تعریف می‌شود
+  // location به صورت ساده در همین کلاس تعریف شده
   location: {
     floor: number;
     beds: number;
@@ -25,5 +25,5 @@ export class CreateRoomDto {
 
   @IsString()
   @IsNotEmpty()
-  hotelId: string;  // ID for the hotel (you may need this to associate the room with a hotel)
+  hotelId: string;
 }

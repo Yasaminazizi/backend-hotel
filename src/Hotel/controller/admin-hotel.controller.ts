@@ -57,7 +57,7 @@ export class AdminHotelController {
     return this.hotelService.checkoutReservation(id);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('/')
   async createHotel(@Body() createHotelDto: CreateHotelDto) {
     return this.hotelService.createHotel(createHotelDto);
@@ -79,7 +79,7 @@ export class AdminHotelController {
   }
 
   // ---------------------FOR ROOM-------------------
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('/rooms')
   async createRoom(@Body() createRoomDto: CreateRoomDto) {
     return this.hotelService.createRoom(createRoomDto);

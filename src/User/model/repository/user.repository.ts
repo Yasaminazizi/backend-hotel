@@ -50,9 +50,9 @@ export class UserRepository {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return null;
 
-    if (updatedData.password) {
-      updatedData.password = await bcrypt.hash(updatedData.password, 10);
-    }
+    // if (updatedData.password) {
+    //   updatedData.password = await bcrypt.hash(updatedData.password, 10);
+    // }
 
     this.userRepository.merge(user, updatedData);
     return await this.userRepository.save(user);

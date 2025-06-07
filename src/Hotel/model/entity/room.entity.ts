@@ -35,6 +35,9 @@ export class Room {
   @Expose()
   deletedAt: Date;
 
+  @Column({ type: 'int', default: 1 })  
+  quantity: number;
+
   @Column({ type: 'varchar' })
   hotelId: string;
 

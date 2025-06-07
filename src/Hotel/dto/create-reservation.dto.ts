@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsDate, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsDate, IsOptional ,IsInt, Min} from 'class-validator';
 
 export class CreateReservationDto {
   @IsString()
@@ -24,4 +24,10 @@ export class CreateReservationDto {
   @IsDate()
   @IsOptional()
   expirationDate?: Date;
+
+  @IsInt()
+  @Min(1)
+  @IsNotEmpty()
+  quantity: number;
+  
 }
